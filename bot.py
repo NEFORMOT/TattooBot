@@ -285,8 +285,8 @@ def send_weekly_message():
 schedule.every().monday.at("10:00").do(send_weekly_message)
 
 if __name__ == "__main__":
-    logging.info("Скрипт запущен и работает...")
-    while True:
-        schedule.run_pending()
-        job()
-        time.sleep(300)  # Проверяем каждые 5 минут
+    # Если требуется проверка еженедельного сообщения, можно оставить условие:
+    now = datetime.utcnow()
+    if now.weekday() == 0 and now.hour == 7 and now.minute == 0:
+        send_weekly_message()
+    job()  # Выполняем проверку постов один раз и завершаем работу
