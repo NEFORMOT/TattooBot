@@ -16,7 +16,6 @@ HF_TOKEN = os.getenv("HF_TOKEN", "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")
 YNDX_API_KEY = os.getenv("YNDX_API_KEY", "AQVN06EYpyNnjq62T8ZKHMgq3zwnzqx1fiSQ5f9k")
 LAST_CHECK_FILE = "last_checked.txt"
 
-# Шаблоны комплиментов
 # Шаблоны комплиментов (убраны {})
 weekly_compliments = [
     "О, великая мастер! Твои руки творят искусство для клиентов. Пусть эта неделя принесёт новые шедевры!",
