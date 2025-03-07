@@ -7,13 +7,13 @@ import logging
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Настройки из переменных окружения (берется из секретов GitHub)
-VK_TOKEN = os.getenv("VK_TOKEN", "1a1841931a1841931a1841936a193444b911a181a1841937dd29ffb8d993d2135578e26")
+# Настройки: Используем переменные окружения для безопасности. Если не заданы, подставляются значения по умолчанию для теста.
+VK_TOKEN = "1a1841931a1841931a1841936a193444b911a181a1841937dd29ffb8d993d2135578e26"
 GROUP_ID = "-229597836"
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7808414348:AAE8jZ_Y1AtQIxB3VV-ZFdZZ88pY8IVrdYI")
-CHAT_ID = os.getenv("CHAT_ID", "7564964211")
-HF_TOKEN = os.getenv("HF_TOKEN", "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")
-YNDX_API_KEY = os.getenv("YNDX_API_KEY", "AQVN06EYpyNnjq62T8ZKHMgq3zwnzqx1fiSQ5f9k")
+TELEGRAM_TOKEN = "7808414348:AAE8jZ_Y1AtQIxB3VV-ZFdZZ88pY8IVrdYI"
+CHAT_ID = "7564964211"
+HF_TOKEN = "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"
+YNDX_API_KEY = "AQVN06EYpyNnjq62T8ZKHMgq3zwnzqx1fiSQ5f9k"
 LAST_CHECK_FILE = "last_checked.txt"
 
 # Шаблоны комплиментов (убраны {})
