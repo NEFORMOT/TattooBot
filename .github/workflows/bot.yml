@@ -1,0 +1,31 @@
+name: Run TattooBot every 5 minutes
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # запуск каждые 5 минут
+  workflow_dispatch: # для ручного запуска
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bot
+        env:
+          VK_TOKEN: ${{ secrets.VK_TOKEN }}
+          GROUP_ID: ${{ secrets.GROUP_ID }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          YNDX_API_KEY: ${{ secrets.YNDX_API_KEY }}
+        run: python bot.py
