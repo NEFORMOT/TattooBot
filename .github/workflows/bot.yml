@@ -1,35 +1,31 @@
-name: Tattoo Bot
+name: Run TattooBot every 5 minutes
 
 on:
   schedule:
-    - cron: '* * * * *'  # Запуск каждую минуту (для теста)
-  workflow_dispatch:  # Возможность запустить вручную
+    - cron: '*/5 * * * *' # запуск каждые 5 минут
+  workflow_dispatch: # для ручного запуска
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v3
         with:
-          python-version: '3.9'
+          python-version: '3.10'
+
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install -r requirements.txt
+
       - name: Run bot
         env:
           VK_TOKEN: ${{ secrets.VK_TOKEN }}
+          GROUP_ID: ${{ secrets.GROUP_ID }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           YNDX_API_KEY: ${{ secrets.YNDX_API_KEY }}
         run: python bot.py
-      - name: Commit last_checked.txt
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add last_checked.txt
-          git commit -m "Update last_checked.txt" || echo "No changes to commit"
-          git push
