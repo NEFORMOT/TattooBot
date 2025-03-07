@@ -2,7 +2,7 @@ name: Tattoo Bot
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Запуск каждые 5 минут
+    - cron: '* * * * *'  # Запуск каждую минуту (для теста)
   workflow_dispatch:  # Возможность запустить вручную
 
 jobs:
@@ -26,3 +26,10 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           YNDX_API_KEY: ${{ secrets.YNDX_API_KEY }}
         run: python bot.py
+      - name: Commit last_checked.txt
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add last_checked.txt
+          git commit -m "Update last_checked.txt" || echo "No changes to commit"
+          git push
