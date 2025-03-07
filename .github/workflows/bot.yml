@@ -21,11 +21,5 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run bot
-        env:
-          VK_TOKEN: ${{ secrets.VK_TOKEN }}
-          GROUP_ID: ${{ secrets.GROUP_ID }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          YNDX_API_KEY: ${{ secrets.YNDX_API_KEY }}
+       
         run: python bot.py
