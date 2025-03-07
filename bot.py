@@ -1,7 +1,5 @@
 import os
 import requests
-import schedule
-import time
 from datetime import datetime
 import random
 import logging
@@ -9,15 +7,16 @@ import logging
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Настройки: Используем переменные окружения для безопасности. Если не заданы, подставляются значения по умолчанию для теста.
-VK_TOKEN = "1a1841931a1841931a1841936a193444b911a181a1841937dd29ffb8d993d2135578e26"
+# Настройки из переменных окружения (берется из секретов GitHub)
+VK_TOKEN = os.getenv("VK_TOKEN", "1a1841931a1841931a1841936a193444b911a181a1841937dd29ffb8d993d2135578e26")
 GROUP_ID = "-229597836"
-TELEGRAM_TOKEN = "7808414348:AAE8jZ_Y1AtQIxB3VV-ZFdZZ88pY8IVrdYI"
-CHAT_ID = "7564964211"
-HF_TOKEN = "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"
-YNDX_API_KEY = "AQVN06EYpyNnjq62T8ZKHMgq3zwnzqx1fiSQ5f9k"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7808414348:AAE8jZ_Y1AtQIxB3VV-ZFdZZ88pY8IVrdYI")
+CHAT_ID = os.getenv("CHAT_ID", "7564964211")
+HF_TOKEN = os.getenv("HF_TOKEN", "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")
+YNDX_API_KEY = os.getenv("YNDX_API_KEY", "AQVN06EYpyNnjq62T8ZKHMgq3zwnzqx1fiSQ5f9k")
 LAST_CHECK_FILE = "last_checked.txt"
 
+# Шаблоны комплиментов
 # Шаблоны комплиментов (убраны {})
 weekly_compliments = [
     "О, великая мастер! Твои руки творят искусство для клиентов. Пусть эта неделя принесёт новые шедевры!",
@@ -139,7 +138,6 @@ equipment_compliments = [
     "Мастер! Арсенал вдохновляет на великие дела для клиентов!",
     "О, великая! Твоё оборудование — это храм мастерства!"
 ]
-
 no_photo_message = "Мастер! Твоя новая публикация вдохновляет, даже без изображения!"
 
 # Функции для работы с файлом состояния
@@ -204,7 +202,6 @@ def get_image_caption(image_url):
 def classify_image(caption):
     caption_lower = caption.lower()
     
-    # Расширенный словарь ключевых слов с весами
     keywords = {
         "sketch": {
             "words": [
@@ -235,7 +232,7 @@ def classify_image(caption):
                 "план", "ожидание", "клиент", "визит", "подтверждение", "уведомление", "напоминание", 
                 "график", "организация", "событие", "предзаказ", "консультация", "согласование"
             ],
-            "weight": 1.5  # Повышенный вес для приоритета
+            "weight": 1.5
         },
         "in_progress": {
             "words": [
@@ -255,20 +252,17 @@ def classify_image(caption):
         }
     }
     
-    # Приоритет для категории "appointment"
     for word in keywords["appointment"]["words"]:
         if word in caption_lower:
             logging.info(f"Классификация: appointment (ключевое слово: {word})")
             return "appointment"
     
-    # Подсчёт баллов для всех категорий
     scores = {}
     for category, data in keywords.items():
         scores[category] = sum(caption_lower.count(word) * data["weight"] for word in data["words"])
     
     logging.info(f"Баллы: {scores}")
     
-    # Определение категории с максимальным баллом
     max_category = max(scores, key=scores.get)
     max_score = scores[max_category]
     
@@ -279,7 +273,7 @@ def classify_image(caption):
         logging.info("Классификация не определена, возвращаем 'other'")
         return "other"
 
-# Выбор комплимента на основе типа изображения (без вставки caption)
+# Выбор комплимента на основе типа изображения
 def get_compliment(caption):
     image_type = classify_image(caption)
     if image_type == "sketch":
@@ -329,8 +323,15 @@ def send_telegram_message(chat_id, text):
     except Exception as e:
         logging.error(f"Ошибка отправки сообщения: {e}")
 
-# Основная логика: обработка поста и отправка сообщения
+# Основная логика
 def job():
+    now = datetime.utcnow()
+    # Отправка еженедельного сообщения по понедельникам в 10:00 МСК (07:00 UTC)
+    if now.weekday() == 0 and now.hour == 7 and now.minute == 0:
+        message = random.choice(weekly_compliments)
+        send_telegram_message(CHAT_ID, message)
+    
+    # Проверка новых постов
     has_new_post, photo_url = check_new_post()
     if has_new_post:
         if photo_url:
@@ -340,17 +341,5 @@ def job():
             message = no_photo_message
         send_telegram_message(CHAT_ID, message)
 
-# Еженедельное сообщение (по понедельникам в 10:00 по МСК, что соответствует 07:00 UTC)
-def send_weekly_message():
-    message = random.choice(weekly_compliments)
-    send_telegram_message(CHAT_ID, message)
-
-# Планирование еженедельного сообщения
-schedule.every().monday.at("10:00").do(send_weekly_message)
-
 if __name__ == "__main__":
-    # Если требуется проверка еженедельного сообщения, можно оставить условие:
-    now = datetime.utcnow()
-    if now.weekday() == 0 and now.hour == 7 and now.minute == 0:
-        send_weekly_message()
-    job()  # Выполняем проверку постов один раз и завершаем работу
+    job()
